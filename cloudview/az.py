@@ -26,11 +26,19 @@ def get_credentials():
     Get credentials for Azure
     """
     try:
-        subscription_id = os.environ['AZURE_SUBSCRIPTION_ID']
+        subscription_id = os.environ.get(
+            'AZURE_SUBSCRIPTION_ID',
+            os.environ['ARM_SUBSCRIPTION_ID']),
         credentials = ServicePrincipalCredentials(
-            client_id=os.environ['AZURE_CLIENT_ID'],
-            secret=os.environ['AZURE_CLIENT_SECRET'],
-            tenant=os.environ['AZURE_TENANT_ID'])
+            client_id=os.environ.get(
+                'AZURE_CLIENT_ID',
+                os.environ['ARM_CLIENT_ID']),
+            secret=os.environ.get(
+                'AZURE_CLIENT_SECRET',
+                os.environ['ARM_CLIENT_SECRET']),
+            tenant=os.environ.get(
+                'AZURE_TENANT_ID',
+                os.environ['ARM_TENANT_ID']))
         return credentials, subscription_id
     except (KeyError, CloudError, RequestException) as exc:
         FatalError("Azure", exc)
@@ -50,7 +58,7 @@ class Azure:
             FatalError("Azure", exc)
         self._cache = None
         # Remove these variables from the environment
-        for var in [_ for _ in os.environ if _.startswith('AZURE_')]:
+        for var in [_ for _ in os.environ if _.startswith(('AZURE_', 'ARM_'))]:
             os.environ.unsetenv(var)
 
     def _get_instance_view(self, instance):

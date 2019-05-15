@@ -284,7 +284,7 @@ def check_azure():
     Returns True if Azure credentials exist
     """
     return (bool(args.filter_azure) or
-            any(v.startswith("AZURE_") for v in os.environ))
+            any(v.startswith(("AZURE_", "ARM_")) for v in os.environ))
 
 
 @cached(cache={})
